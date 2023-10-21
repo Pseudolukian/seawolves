@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, UUID4
 from datetime import datetime
 from typing import Optional
 from enum import  Enum
@@ -18,6 +18,12 @@ class UserChangeStatus(Enum):
 
 class UserUpdateStatusModel(BaseModel):
     status:UserChangeStatus
+
+class UserDeleteModel(BaseModel):
+    user_id:str = "3010b267-4da4-4365-a1b9-57bfb35a9897"
+
+class UserGetData(BaseModel):
+    user_id: str = "3010b267-4da4-4365-a1b9-57bfb35a9897"
 
 class UserUpdateModel(BaseModel):
     nick_name: str = Field(default="def_nick_name", pattern="^[a-zA-Z0-9_]*$", max_length=30)
@@ -47,5 +53,23 @@ class AcceptedUserRegistration(TunedModel):
 
 class AcceptedUserDeleted(TunedModel):
     nick_name: str = None
-    email: str = None
+    id:UUID4 = None
     status:str = None
+
+class AcceptedUserGetData(TunedModel):
+    id:UUID4 = None
+    email:EmailStr = None
+    is_active:bool = None
+    is_verified:bool = None
+    is_superuser:bool = None
+    first_name:str = None
+    last_name:str = None
+    age:int = None
+    nick_name:str = None
+    position:str = None
+    experience:str = None
+    status:str = None
+    is_author:bool = None
+    registred:str = None
+    about:str = None
+    head_line:str = None

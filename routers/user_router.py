@@ -1,35 +1,46 @@
-from fastapi import APIRouter
-from models.pydantic_models import Accept_Registration_User
-from controllers.user.create_user import create_user
+from fastapi import APIRouter, Depends
+from models.pydantic_models import AcceptedUserRegistration, UserRegestrationModel, \
+                                    UserDeleteModel, AcceptedUserDeleted, UserGetData, \
+                                    AcceptedUserGetData
 
-router = APIRouter()
+from controls.user.User_controls import UserControl
+from db.session import get_db
+from db.user.User_DAL import UserDAL
+
+user_router = APIRouter()
+user_dal = UserDAL(db_session=get_db)
+user = UserControl(db_connection=get_db, user_dal=user_dal)
+
+@user_router.post("/sign-up/", response_model=AcceptedUserRegistration)
+async def create_user(user_reg_data:UserRegestrationModel = Depends(UserRegestrationModel)) -> AcceptedUserRegistration:
+    new_user = await user.create_user(nick_name=user_reg_data.nick_name, email=user_reg_data.email,hashed_password=user_reg_data.hashed_password)
+    return new_user
 
 
-@router.post("/sign-up", response_model=Accept_Registration_User)
-async def create_user(first_name, last_name, email) -> Accept_Registration_User:
-    user = await create_user(first_name=first_name, last_name=last_name, email=email)
-    return user
+@user_router.post("/delete", response_model=AcceptedUserDeleted)
+async def delete_user(user_id:UserDeleteModel = Depends(UserDeleteModel)) -> AcceptedUserDeleted:
+    del_user = await user.delete_user(user_id=user_id.user_id)
+    return del_user
+
+@user_router.post("/info", response_model=AcceptedUserGetData)
+async def delete_user(user_id:UserGetData = Depends(UserGetData)) -> AcceptedUserGetData:
+    user_info = await user.get_user(user_id=user_id.user_id)
+    return user_info
 
 
-@router.post("/delete")
-async def delete_user() -> str:
-    out = "This is user delete end-point."
-    return out
-
-
-@router.post("/change-data")
+@user_router.post("/change-data")
 async def user_change_data():
     out = "This is user change data end-point."
     return out
 
 
-@router.post("/log-in")
+@user_router.post("/log-in")
 async def login_user():
     out = "This is user log-in end-point."
     return out
 
 
-@router.post("/log-out")
+@user_router.post("/log-out")
 async def logout_user():
     out = "This is user log-out end-point."
     return out
