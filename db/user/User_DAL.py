@@ -1,7 +1,11 @@
-from sqlalchemy import select, update, insert
+from sqlalchemy import select, update, insert, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.alchemy_models import Seauser
-from typing import Union, Tuple
+from pydantic import UUID4, BaseModel
+from typing import Type
+from models.pydantic_models import AcceptedUserDeleted, AcceptedUserRegistration, UserRegestrationModel, UserDeleteModel
+
+
 
 
 class UserDAL:
@@ -9,28 +13,33 @@ class UserDAL:
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
 
-    async def delete(self, user_id:str) -> dict[str:str]:
-        action = await self.db_session.execute(update(Seauser)
-                                       .where(Seauser.id == user_id)
-                                       .values(status = "deleted")
-                                       .returning(Seauser.nick_name, Seauser.status, Seauser.id))
-        out = {c: v for c, v in zip(action.keys(), action.first())}
+    async def _sql_return_parser(self, sql_return: Result, output_model: Type[BaseModel]) -> Type[BaseModel]:
+        row = sql_return.fetchone()
+        result_out = {}
+
+        if row:
+            mid_res = row[0].__dict__.copy()
+            mid_res.pop('_sa_instance_state', None)
+
+            for field_name in output_model.model_fields.keys():
+                if field_name in mid_res:
+                    result_out[field_name] = mid_res[field_name]
+
+            return result_out
+        else:
+            return None
+
+    async def delete(self, user_id:UUID4) -> AcceptedUserDeleted:
+        request = update(Seauser).where(Seauser.id == user_id).values(status="deleted").returning(Seauser)
+        action = await self.db_session.execute(request)
+        out = await self._sql_return_parser(sql_return=action, output_model=AcceptedUserDeleted)
         return out
 
-    async def create(self,
-                            nick_name: Seauser.nick_name,
-                            email: Seauser.email,
-                            hashed_password: Seauser.hashed_password) -> dict[str:str]:
-
-        new_user = Seauser(nick_name=nick_name,email=email,
-                           hashed_password=hashed_password)
-
-        action = await self.db_session.execute(insert(Seauser).values(nick_name = new_user.nick_name,
-                                                                  email = new_user.email,
-                                                                  hashed_password = new_user.hashed_password)
-                                                            .returning(Seauser.nick_name, Seauser.email))
-
-        out = {c:v for c,v in zip(action.keys(), action.first())}
+    async def create(self, nick_name: str, email: str, password: str) -> AcceptedUserRegistration:
+        new_user = UserRegestrationModel(nick_name=nick_name, emai=email, hashed_password=password)
+        request = insert(Seauser).values(nick_name=new_user.nick_name, email=new_user.email, hashed_password=new_user.hashed_password).returning(Seauser)
+        action = await self.db_session.execute(request)
+        out = await self._sql_return_parser(sql_return=action, output_model=AcceptedUserRegistration)
         return out
 
 
@@ -72,7 +81,7 @@ class UserDAL:
 
         return action.scalar()
 
-    async def user_change_status(self, user_id:Seauser.id, new_status:Seauser.status) -> Seauser:
+    async def user_change_status(self, user_id: Seauser.id, new_status: Seauser.status) -> Seauser:
 
         update_status = await self.db_session.execute(update(Seauser)
                                                           .where(Seauser.id == user_id)
@@ -81,7 +90,17 @@ class UserDAL:
 
         return update_status.scalar()
 
-    async def get_user_data(self, user_id) -> Seauser:
-        out = await self.db_session.execute(select(Seauser).where(Seauser.id == user_id))
-        print(out.fetchone())
-        return out.fetchone()
+    async def get_user_data(self, user_id: Seauser.id) -> Seauser:
+        request = select(Seauser).where(Seauser.id == user_id)
+        out = await self.db_session.execute(request)
+        out = out.first()[0].__dict__.copy()
+        out.pop('_sa_instance_state', None)
+        return out
+
+    async def user_log_in(self, user_email: Seauser.email, hashed_password: Seauser.hashed_password) -> Seauser:
+        request = select(Seauser.id).where(Seauser.email == user_email, Seauser.hashed_password == hashed_password)
+        out = await self.db_session.execute(request)
+
+
+
+
