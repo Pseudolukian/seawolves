@@ -27,11 +27,11 @@ class UserGetData(BaseModel):
     user_id: UUID4 = "3010b267-4da4-4365-a1b9-57bfb35a9897"
 
 class UserUpdateModel(BaseModel):
-    nick_name: str = Field(default="def_nick_name", pattern="^[a-zA-Z0-9_]*$", max_length=30)
+    nick_name: str = Field(default="def_nick_name", pattern="^[a-zA-Z0-9_]*$", min_length=10, max_length=30)
     first_name: str = Field(default="First name", max_length=30, pattern="^[a-zA-Z]*$")
     last_name: str = Field(default="Last name", max_length=50, pattern="^[a-zA-Z]*$")
     email: EmailStr
-    hashed_password: str = Field(default="A123B123", pattern="^[a-zA-Z0-9]*$", max_length=9, min_length=8)
+    hashed_password: str = Field(default="A123B123", pattern="^[a-zA-Z0-9]*$", min_length=7, max_length=7)
     age: int = Field(default=18, gt=17, lt=81, description="Age must be between 18 and 80")
     experience: UserExperience = UserExperience()
     about: str = ""
@@ -60,6 +60,9 @@ class AcceptedUserDeleted(TunedModel):
     nick_name: str = None
     id:UUID4 = None
     status:str = None
+
+class AcceptedUserUpdateStatusModel(TunedModel):
+    status: str = None
 
 class AcceptedUserGetData(TunedModel):
     id: UUID4 = None
