@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, EmailStr, UUID4, Json
 from typing import Union
 from datetime import datetime
 from typing import Optional
-from enum import  Enum
+from enum import Enum
 
 #=======Input data models===========#
 class UserExperience(BaseModel):
@@ -31,7 +31,7 @@ class UserUpdateModel(BaseModel):
     first_name: str = Field(default="First name", max_length=30, pattern="^[a-zA-Z]*$")
     last_name: str = Field(default="Last name", max_length=50, pattern="^[a-zA-Z]*$")
     email: EmailStr
-    hashed_password: str = Field(default="A123B123", pattern="^[a-zA-Z0-9]*$", min_length=7, max_length=7)
+    hashed_password: str = Field(default="A123B123", pattern="^[a-zA-Z0-9]*$", min_length=8, max_length=8)
     age: int = Field(default=18, gt=17, lt=81, description="Age must be between 18 and 80")
     experience: UserExperience = UserExperience()
     about: str = ""
@@ -40,11 +40,13 @@ class UserUpdateModel(BaseModel):
 class UserRegestrationModel(BaseModel):
     nick_name: str = Field(default="def_nick_name", pattern="^[a-zA-Z0-9_]*$", max_length=30)
     email: EmailStr = Field(default="def_mail@mail.com")
-    hashed_password: str = Field(default="A123B123", pattern="^[a-zA-Z0-9]*$", max_length=9, min_length=8)
+    hashed_password: str = Field(default="A123B123", pattern="^[a-zA-Z0-9]*$", min_length=8, max_length=8)
 
 class UserLogin(BaseModel):
     user_email: EmailStr = Field(default="def_mail@mail.com")
-    hashed_password: str = Field(default="A123B123", pattern="^[a-zA-Z0-9]*$", max_length=9, min_length=8)
+    hashed_password: str = Field(default="A123B123", pattern="^[a-zA-Z0-9]*$", min_length=8, max_length=8)
+    cookie_name: str = Field(default="SeawolveUserToken")
+    cookie_length: int = Field(default=13)
 
 
 #======Return data models==============#
@@ -83,3 +85,6 @@ class AcceptedUserGetData(TunedModel):
 
 class AcceptedUserLogin(TunedModel):
     id: UUID4 = None
+
+class AcceptedUserLogout(TunedModel):
+    message: str = "You are logout."

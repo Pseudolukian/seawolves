@@ -36,7 +36,8 @@ class UserDAL:
         return out
 
     async def create(self, new_user_nick_name: str, new_user_email: str, new_user_password: str) -> AcceptedUserRegistration:
-        request = insert(Seauser).values(nick_name=new_user_nick_name, email=new_user_email, hashed_password=new_user_password).returning(Seauser)
+        new_user = UserRegestrationModel(nick_name=new_user_nick_name, email=new_user_email, hashed_password=new_user_password)
+        request = insert(Seauser).values(nick_name=new_user.nick_name, email=new_user.email, hashed_password=new_user.hashed_password).returning(Seauser)
         action = await self.db_session.execute(request)
         out = await self._sql_return_parser(sql_return=action, output_model=AcceptedUserRegistration)
         return out
@@ -45,6 +46,7 @@ class UserDAL:
         request = select(Seauser).where(Seauser.id == user_id)
         action = await self.db_session.execute(request)
         out = await self._sql_return_parser(sql_return=action, output_model=AcceptedUserGetData)
+        print(out)
         return out
 
     async def user_change_status(self, user_id: UUID4, new_status: str) -> AcceptedUserUpdateStatusModel:
