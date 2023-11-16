@@ -2,7 +2,7 @@ from fastapi_users.db import SQLAlchemyBaseUserTableUUID
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, TIMESTAMP, Integer, Table, Boolean, Time, String, JSON
+from sqlalchemy import Column, TIMESTAMP, Integer, Table, Boolean, Time, String, JSON, DATE
 from sqlalchemy.dialects.postgresql import UUID
 from uuid import uuid4
 from datetime import datetime
@@ -42,10 +42,13 @@ class Seauser(SQLAlchemyBaseUserTableUUID, Base):
 
 
 class Calendar(Base):
+    # =====Main fields===================#
     __tablename__ = 'calendar'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey('sea_user.id'))
     calendar_name = Column(String, nullable=True, default="")
+
+    # =====Relationships=========================
     meets = relationship('Meet', back_populates='calendar')
     seauser = relationship('Seauser', back_populates='calendar')
 
@@ -55,14 +58,15 @@ class Meet(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     calendar_id = Column(UUID(as_uuid=True), ForeignKey('calendar.id'))
     guest_id = Column(UUID(as_uuid=True))
-    date_of_meet = Column(TIMESTAMP, nullable=False)
+    date_of_meet = Column(DATE, nullable=False)
     time_of_meet_start = Column(Time, nullable=False)
     time_of_meet_end = Column(Time, nullable=False)
-    link_to_Google_Meet = Column(String)
+    link_to_Google_Meet = Column(String, nullable=True)
 
     meet_title = Column(String, nullable=True, default="Default meet")
     meet_agenda = Column(String, nullable=True, default="Default agenda meet")
 
+    # =====Relationships=========================
     calendar = relationship('Calendar', back_populates='meets')
 
 

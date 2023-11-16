@@ -1,10 +1,12 @@
 from pydantic import BaseModel, Field, EmailStr, UUID4, Json
+from datetime import date
 from typing import Union
-from datetime import datetime
+from datetime import datetime,time
 from typing import Optional
 from enum import Enum
 
-#=======Input data models===========#
+#================== Input data models =======================#
+#============User=============#
 class UserExperience(BaseModel):
     start: Optional[datetime] = None
     end: Optional[datetime] = None
@@ -48,8 +50,24 @@ class UserLogin(BaseModel):
     cookie_name: str = Field(default="SeawolveUserToken")
     cookie_length: int = Field(default=13)
 
+#=============Calendar===================
 
-#======Return data models==============#
+class CalendarCreate(BaseModel):
+    user_id: UUID4 = Field(default=None)
+    calendar_name: str = Field(default='My_meets')
+
+class MeetCreate(BaseModel):
+    calendar_id: Optional[UUID4] = Field(default=None)
+    guest_id: Optional[UUID4] = Field(default=None)
+    date_of_meet: date = Field(default_factory=date.today)
+    time_of_meet_start: time = Field(default_factory=lambda: time())
+    time_of_meet_end: time = Field(default_factory=lambda: time())
+    link_to_Google_Meet: Optional[str] = Field(default=None)
+
+    meet_title: str = Field(default='My meet with the best sea mentor in the world')
+    meet_agenda: str = Field(default='Become the greatest seawolf.')
+
+#=================== Return data models =======================#
 class TunedModel(BaseModel):
     class Config:
         from_attributes = True
@@ -57,6 +75,7 @@ class TunedModel(BaseModel):
 class AcceptedUserRegistration(TunedModel):
     nick_name: str = None
     email: str = None
+    id: UUID4 = None
 
 class AcceptedUserDeleted(TunedModel):
     nick_name: str = None
@@ -88,3 +107,8 @@ class AcceptedUserLogin(TunedModel):
 
 class AcceptedUserLogout(TunedModel):
     message: str = "You are logout."
+
+#=======Calendar=========
+
+class AcceptedCalendarCreate(TunedModel):
+    message: str = 'Calendar created.'

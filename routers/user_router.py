@@ -5,18 +5,23 @@ from models.pydantic_models import AcceptedUserRegistration, UserRegestrationMod
                                     AcceptedUserLogin, AcceptedUserLogout, UserLogin
 
 from controls.user.User_controls import UserControl
+from controls.calendar.Calendar_controls import CalendarControl
 from db.session import get_db
 from db.user.User_DAL import UserDAL
+from db.calendar.Calendar_DAL import Calendar_DAL
 from pydantic import UUID4
 
 
 user_router = APIRouter()
 user_dal = UserDAL(db_session=get_db)
+calendar_dal = Calendar_DAL(db_session=get_db)
 user = UserControl(db_connection=get_db, user_dal=user_dal)
+calendar = CalendarControl(db_connection=get_db, calendar_dal=calendar_dal)
 
 @user_router.post("/sign-up", response_model=AcceptedUserRegistration)
-async def create_user(user_reg_data:UserRegestrationModel = Depends(UserRegestrationModel)) -> AcceptedUserRegistration:
+async def create_user(user_reg_data: UserRegestrationModel = Depends(UserRegestrationModel)) -> AcceptedUserRegistration:
     new_user = await user.create_user(nick_name=user_reg_data.nick_name, email=user_reg_data.email, password=user_reg_data.hashed_password)
+    await calendar.calendar_create(user_id=new_user['id'], calendar_name=user_reg_data.nick_name + '\'s calendar' )
     return new_user
 
 

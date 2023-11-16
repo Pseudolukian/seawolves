@@ -5,6 +5,7 @@ from typing import Generator
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, Request, Response
 from pydantic import UUID4
+from modules.S3.s3 import S3, s3_session
 
 class UserControl:
     def __init__(self, db_connection:Generator, user_dal:UserDAL):
@@ -20,17 +21,23 @@ class UserControl:
         if cookie_check:
             pass
         else:
-            return response.set_cookie(key=cookie_options.cookie_name, value=str(user_id["id"])[0:cookie_options.cookie_length])
+            return response.set_cookie(key=cookie_options.cookie_name, value=str(user_id["id"]).replace('-', ''))
 
     async def del_cookie_login(self, response: Response, cookie_options: UserLogin):
         return response.delete_cookie(key=cookie_options.cookie_name)
 
 
     async def create_user(self, nick_name:str, email: str, password: str) -> AcceptedUserRegistration:
+        s3_con = s3_session
+        s3_work = S3(session=s3_con, s3_conf_path='./modules/S3/S3_structure.cfg')
+
         try:
             async with self.db_connection() as session:
                 self.user_dal.db_session = session
                 action = await self.user_dal.create(new_user_nick_name=nick_name, new_user_email=email, new_user_password=password)
+                id = str(dict(action)['id'])
+                await s3_work.create_structure(bucket_name='seausers', structure_name='sea_user', id=id)
+
                 return action
 
         except IntegrityError as e:
