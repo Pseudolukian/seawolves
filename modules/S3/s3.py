@@ -60,6 +60,7 @@ class S3:
         return {'StatusCode': 200, 'Created:': paths}
 
 
+"""
 s3_ses = s3_session
 test_s3 = S3(session=s3_ses)
 
@@ -70,3 +71,4 @@ if __name__ == "__main__":
     #print(asyncio.run(test_s3.create_folder(bucket_name='seausers', folder_path='test/')))
     #print(asyncio.run(test_s3.delete_folder(bucket_name='pppp', folder_path='test/')))
     print(asyncio.run(test_s3.create_structure(id='qweeersasddsada')))
+"""
