@@ -81,17 +81,18 @@ Control слой реализует основную бизнеслогику. �
 было просто найти пайплайн исполнения задачи. Например, `Contorl`- и `DAL`-функции регистрация пользователя выглядят 
 так:
 
-| DAL-функция | Control-функция |
-|---|---|
-
-|```python
+**DAL-функция**:
+```python
 async def create(self, new_user_nick_name: str, new_user_email: str, new_user_password: str) -> AcceptedUserRegistration:
     new_user = UserRegestrationModel(nick_name=new_user_nick_name, email=new_user_email, hashed_password=new_user_password)
     request = insert(Seauser).values(nick_name=new_user.nick_name, email=new_user.email, hashed_password=new_user.hashed_password).returning(Seauser)
     action = await self.db_session.execute(request)
     out = await sql_return_parser(sql_return=action, output_model=AcceptedUserRegistration)
     return out
-```|```python
+```
+
+**Control-функция**:
+```python
 async def create_user(self, nick_name:str, email: str, password: str) -> AcceptedUserRegistration:
     try:
         async with self.db_connection() as session:
@@ -106,7 +107,7 @@ async def create_user(self, nick_name:str, email: str, password: str) -> Accepte
             raise HTTPException(status_code=400, detail="User with this nick_name already exists.")
         else:
             raise HTTPException(status_code=500, detail="Unexpected error occurred.")
-```|
+```
 
 Из примера видно, что в `create_user` мы вызываем функцию `user_dal.create` класса `UserDAL`, передав в него 
 асинхронную сессию `session`. Сессию мы получаем через вызов функции `get_db`:
