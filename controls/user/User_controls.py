@@ -3,28 +3,13 @@ from models.pydantic_models import AcceptedUserRegistration, AcceptedUserDeleted
     AcceptedUserUpdateStatusModel, AcceptedUserLogin, UserLogin
 from typing import Generator
 from sqlalchemy.exc import IntegrityError
-from fastapi import HTTPException, Request, Response
+from fastapi import HTTPException
 from pydantic import UUID4
-
 
 class UserControl:
     def __init__(self, db_connection:Generator, user_dal:UserDAL):
         self.db_connection = db_connection
         self.user_dal = user_dal
-
-    async def check_cookie_login(self, request: Request, cookie_options: UserLogin) -> bool:
-        check_cookie = request.cookies.get(str(cookie_options.cookie_name))
-        return bool(check_cookie)
-
-    async def set_cookie_login(self, response: Response, request: Request, cookie_options: UserLogin, user_id: UUID4):
-        cookie_check = await self.check_cookie_login(request=request, cookie_options=cookie_options)
-        if cookie_check:
-            pass
-        else:
-            return response.set_cookie(key=cookie_options.cookie_name, value=str(user_id["id"]).replace('-', ''))
-
-    async def del_cookie_login(self, response: Response, cookie_options: UserLogin):
-        return response.delete_cookie(key=cookie_options.cookie_name)
 
 
     async def create_user(self, nick_name:str, email: str, password: str) -> AcceptedUserRegistration:

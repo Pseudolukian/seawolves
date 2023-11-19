@@ -11,8 +11,9 @@ from db.user.User_DAL import UserDAL
 from db.calendar.Calendar_DAL import Calendar_DAL
 from pydantic import UUID4
 from modules.S3.s3 import S3, s3_session
+from modules.Cookies.UserCookies import UserCookies
 
-
+user_cookies = UserCookies()
 s3_con = s3_session
 s3_work = S3(session=s3_con, s3_conf_path='./modules/S3/S3_structure.cfg')
 user_router = APIRouter()
@@ -49,11 +50,11 @@ async def user_change_data(user_id: UUID4, new_status: str = Depends(UserUpdateS
 @user_router.post("/log-in", response_model=AcceptedUserLogin)
 async def login_user(email: str, password: str, req: Request, res: Response):
     log_in = await user.login_user(user_password=password, user_email=email)
-    await user.set_cookie_login(request=req, response=res, cookie_options=UserLogin(), user_id=log_in)
+    await user_cookies.set_cookie_login(request=req, response=res, cookie_options=UserLogin(), user_id=log_in)
     return log_in
 
 @user_router.post("/log-out", response_model=AcceptedUserLogout)
 async def logout_user(res: Response):
-    await user.del_cookie_login(response=res, cookie_options=UserLogin())
+    await user_cookies.del_cookie_login(response=res, cookie_options=UserLogin())
     message = AcceptedUserLogout()
     return message
