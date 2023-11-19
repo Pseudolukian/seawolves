@@ -51,9 +51,11 @@ async def create_user(user_reg_data: UserRegestrationModel = Depends(UserRegestr
 Rout-функции определяют:
 * поля форм ендпоинтов (`user_reg_data: UserRegestrationModel = Depends(UserRegestrationModel)`).
 * структуру ответа `response_model=AcceptedUserRegistration`.
-* вызываемые внутри них control- и module-функции.
+* вызываемые внутри них control- и module-функции (модули расширяющие функционал движка, например, S3).
 
-В rout-функции  
+Схематично работа rout-функций выглядит так:
+![Rout func scheme](./rout-scheme.png "Схема работы rout-функций").
+
 
 Далее инстанс `user_router` подключается к root-роутеру в main-файле проекта FastAPI:
 ```python
