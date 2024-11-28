@@ -5,12 +5,13 @@ from typing import AsyncContextManager, Any
 import configparser
 import aiofiles
 from pprint import pprint
+import json
 
 @asynccontextmanager
 async def s3_session() -> AsyncContextManager:
     session = aioboto3.session.Session(
-        aws_access_key_id = "YCAJE7srO1x0ucWLMF6-fnL7x",
-        aws_secret_access_key = "YCNMTzK545MZfwxru7GGsjpTaiDigYDw9dJ96SKr",
+        aws_access_key_id = json.load("./yc_s3_conn_secrets.json")["aws_access_key_id"],
+        aws_secret_access_key = json.load("./yc_s3_conn_secrets.json")["aws_secret_access_key"],
         region_name="ru-central1"
     )
     async with session.client('s3', endpoint_url='https://storage.yandexcloud.net') as client:
