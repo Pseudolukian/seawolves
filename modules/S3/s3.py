@@ -8,7 +8,11 @@ from pprint import pprint
 
 @asynccontextmanager
 async def s3_session() -> AsyncContextManager:
-    session = aioboto3.session.Session()
+    session = aioboto3.session.Session(
+        aws_access_key_id = "YCAJE7srO1x0ucWLMF6-fnL7x",
+        aws_secret_access_key = "YCNMTzK545MZfwxru7GGsjpTaiDigYDw9dJ96SKr",
+        region_name="ru-central1"
+    )
     async with session.client('s3', endpoint_url='https://storage.yandexcloud.net') as client:
         yield client
 

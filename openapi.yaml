@@ -1,0 +1,333 @@
+openapi: 3.1.0
+info:
+  title: FastAPI
+  version: 0.1.0
+paths:
+  /user/sign-up:
+    post:
+      tags:
+      - user
+      summary: Create User
+      operationId: create_user_user_sign_up_post
+      parameters:
+      - name: nick_name
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 30
+          pattern: ^[a-zA-Z0-9_]*$
+          default: def_nick_name
+          title: Nick Name
+      - name: email
+        in: query
+        required: false
+        schema:
+          type: string
+          format: email
+          default: def_mail@mail.com
+          title: Email
+      - name: hashed_password
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 8
+          pattern: ^[a-zA-Z0-9]*$
+          default: A123B123
+          title: Hashed Password
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptedUserRegistration'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/delete:
+    delete:
+      tags:
+      - user
+      summary: Delete User
+      operationId: delete_user_user_delete_delete
+      parameters:
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid4
+          default: 3010b267-4da4-4365-a1b9-57bfb35a9897
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptedUserDeleted'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/info:
+    get:
+      tags:
+      - user
+      summary: Get User Data
+      operationId: get_user_data_user_info_get
+      parameters:
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid4
+          default: 3010b267-4da4-4365-a1b9-57bfb35a9897
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptedUserGetData'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/change-user-status:
+    put:
+      tags:
+      - user
+      summary: User Change Data
+      operationId: user_change_data_user_change_user_status_put
+      parameters:
+      - name: user_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid4
+          title: User Id
+      - name: status
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/UserChangeStatus'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptedUserUpdateStatusModel'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/log-in:
+    post:
+      tags:
+      - user
+      summary: Login User
+      operationId: login_user_user_log_in_post
+      parameters:
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Email
+      - name: password
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Password
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptedUserLogin'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/log-out:
+    post:
+      tags:
+      - user
+      summary: Logout User
+      operationId: logout_user_user_log_out_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptedUserLogout'
+components:
+  schemas:
+    AcceptedUserDeleted:
+      properties:
+        nick_name:
+          type: string
+          title: Nick Name
+        id:
+          type: string
+          format: uuid4
+          title: Id
+        status:
+          type: string
+          title: Status
+      type: object
+      title: AcceptedUserDeleted
+    AcceptedUserGetData:
+      properties:
+        id:
+          type: string
+          format: uuid4
+          title: Id
+        email:
+          type: string
+          format: email
+          title: Email
+        is_active:
+          type: boolean
+          title: Is Active
+        is_verified:
+          type: boolean
+          title: Is Verified
+        is_superuser:
+          type: boolean
+          title: Is Superuser
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        age:
+          type: integer
+          title: Age
+        nick_name:
+          type: string
+          title: Nick Name
+        position:
+          type: string
+          title: Position
+        experience:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Experience
+        status:
+          type: string
+          title: Status
+        is_author:
+          type: boolean
+          title: Is Author
+        about:
+          type: string
+          title: About
+        head_line:
+          type: string
+          title: Head Line
+      type: object
+      title: AcceptedUserGetData
+    AcceptedUserLogin:
+      properties:
+        id:
+          type: string
+          format: uuid4
+          title: Id
+      type: object
+      title: AcceptedUserLogin
+    AcceptedUserLogout:
+      properties:
+        message:
+          type: string
+          title: Message
+          default: You are logout.
+      type: object
+      title: AcceptedUserLogout
+    AcceptedUserRegistration:
+      properties:
+        nick_name:
+          type: string
+          title: Nick Name
+        email:
+          type: string
+          title: Email
+        id:
+          type: string
+          format: uuid4
+          title: Id
+      type: object
+      title: AcceptedUserRegistration
+    AcceptedUserUpdateStatusModel:
+      properties:
+        status:
+          type: string
+          title: Status
+      type: object
+      title: AcceptedUserUpdateStatusModel
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    UserChangeStatus:
+      type: string
+      enum:
+      - registrated
+      - banned
+      - deleted
+      - stopped
+      title: UserChangeStatus
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
