@@ -10,8 +10,8 @@ import json
 @asynccontextmanager
 async def s3_session() -> AsyncContextManager:
     session = aioboto3.session.Session(
-        aws_access_key_id = <secret>,
-        aws_secret_access_key = <secret>,
+        aws_access_key_id = ...,
+        aws_secret_access_key = ...,
         region_name="ru-central1"
     )
     async with session.client('s3', endpoint_url='https://storage.yandexcloud.net') as client:
